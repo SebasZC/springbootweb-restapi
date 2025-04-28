@@ -1,4 +1,4 @@
-name: Run Postman Tests
+name: Run Postman Tests and Deploy Report
 
 on:
   push:
@@ -46,7 +46,7 @@ jobs:
           cd src/test/springboot-test-postman  # Cambiar al directorio donde está el archivo .bat
           cmd.exe /c run_test.bat  # Ejecutar el .bat
 
-      - name: Upload Test Report
+      - name: Upload Test Report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: postman-report
@@ -65,35 +65,35 @@ jobs:
         with:
           name: postman-report
 
-      # Verificar el contenido del artefacto para asegurar que el archivo HTML está disponible
-      - name: List downloaded files
+      # Descomprimir el artefacto descargado
+      - name: Unzip Postman report
+        run: |
+          mkdir postman-report
+          unzip postman-report.zip -d postman-report/
+
+      # Verificar que el archivo HTML fue descomprimido correctamente
+      - name: List downloaded and unzipped files
         run: |
           ls postman-report/
 
-      - name: Move HTML file to 'reportes' folder
-        run: |
-          mkdir -p reportes  # Crear la carpeta 'reportes' si no existe
-          mv postman-report/reporte_*.html reportes/  # Mover el archivo HTML a la carpeta 'reportes'
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy HTML file to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: reportes  # Publicar solo la carpeta 'reportes'
-          destination_dir: .  # Opcional, todo en la raíz de gh-pages
+          publish_dir: postman-report  # Usar directamente la carpeta que contiene el reporte
           publish_branch: gh-pages
 
       - name: Get last report filename
         id: get_filename
         run: |
-          echo "reportFileName=$(ls reportes/reporte_*.html | tail -n 1)" >> $GITHUB_ENV
+          echo "reportFileName=$(ls postman-report/reporte_*.html | tail -n 1)" >> $GITHUB_ENV
 
       - name: Add link to report in GitHub Actions Summary
         uses: actions/github-script@v7
         with:
           script: |
             const filename = process.env.reportFileName;
-            const link = `https://SEBASZC.github.io/springbootweb-restapi/reportes/${filename}`;
+            const link = `https://SEBASZC.github.io/springbootweb-restapi/${filename}`;
             core.summary
               .addHeading('🔗 Reporte de pruebas')
               .addLink('Ver reporte Postman', link)
