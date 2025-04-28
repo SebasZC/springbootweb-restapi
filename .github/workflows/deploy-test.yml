@@ -52,13 +52,6 @@ jobs:
           name: postman-report
           path: src/test/springboot-test-postman/reporte_*.html
 
-      - name: Get the last report file name
-        id: get_filename
-        run: |
-          # Usamos PowerShell para encontrar el último archivo .html generado
-          $reportFile = Get-ChildItem -Path src/test/springboot-test-postman/ -Filter "reporte_*.html" | Sort-Object LastWriteTime | Select-Object -Last 1
-          echo "reportFileName=${reportFile.Name}" >> $GITHUB_ENV  # Guardamos el nombre del archivo
-
   deploy-report:
     needs: test  # Esperar a que el job de tests termine
     runs-on: ubuntu-latest
@@ -72,11 +65,18 @@ jobs:
         with:
           name: postman-report
 
+      - name: Get the last report file name
+        id: get_filename
+        run: |
+          # Obtener el nombre del archivo HTML desde el artefacto descargado
+          reportFile=$(ls postman-report/reporte_*.html | tail -n 1)
+          echo "reportFileName=${reportFile}" >> $GITHUB_ENV  # Guardamos el nombre completo del archivo (ruta relativa)
+
       # Crear la carpeta 'reportes' y mover el archivo HTML descargado
       - name: Create reportes folder and move HTML file
         run: |
           mkdir -p reportes  # Crear la carpeta 'reportes' si no existe
-          mv "src/test/springboot-test-postman/${{ env.reportFileName }}" reportes/  # Mover el archivo HTML a la carpeta 'reportes'
+          mv "${{ env.reportFileName }}" reportes/  # Mover el archivo HTML a la carpeta 'reportes'
 
       # Eliminar reportes viejos (mayores a 30 días)
       - name: Delete old reports (older than 30 days)
@@ -98,8 +98,15 @@ jobs:
         with:
           script: |
             const filename = process.env.reportFileName;
-            const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename}`;
-            core.summary
-              .addHeading('🔗 Reporte de pruebas')
-              .addLink('Ver reporte Postman', link)
-              .write();
+            if (filename) {
+              const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename}`;
+              core.summary
+                .addHeading('🔗 Reporte de pruebas')
+                .addLink('Ver reporte Postman', link)
+                .write();
+            } else {
+              core.summary
+                .addHeading('🔗 Reporte de pruebas')
+                .addText('No se encontró ningún reporte generado.')
+                .write();
+            }
