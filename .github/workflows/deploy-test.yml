@@ -80,6 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: postman-report
+          path: postman-report
 
       - name: Find latest HTML report
         id: find_report
@@ -91,7 +92,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./
+          publish_dir: postman-report
           publish_branch: gh-pages
 
       - name: Add report link to Summary
