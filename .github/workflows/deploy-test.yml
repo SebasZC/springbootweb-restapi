@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: postman-report
-          path: src/test/springboot-test-postman/reporte_*.html
+          path: src/test/springboot-test-postman/reporte_*.html  # Asegurarse de que el archivo HTML se está subiendo correctamente
 
   deploy-report:
     needs: test  # Esperar a que el job de tests termine
@@ -65,35 +65,36 @@ jobs:
         with:
           name: postman-report
 
-      - name: Get the last report file name
-        id: get_filename
+      # Verificar el contenido del artefacto para asegurar que el archivo HTML está disponible
+      - name: List downloaded files
         run: |
-          # Obtener el nombre del archivo HTML desde el artefacto descargado
-          reportFile=$(ls postman-report/reporte_*.html | tail -n 1)
-          echo "reportFileName=${reportFile}" >> $GITHUB_ENV  # Guardamos el nombre completo del archivo (ruta relativa)
+          ls postman-report/
+
+      - name: Move HTML file to 'reportes' folder
+        run: |
+          mkdir -p reportes  # Crear la carpeta 'reportes' si no existe
+          mv postman-report/reporte_*.html reportes/  # Mover el archivo HTML a la carpeta 'reportes'
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: postman-report  # Publicar el directorio donde está el archivo HTML
+          publish_dir: reportes  # Publicar solo la carpeta 'reportes'
+          destination_dir: .  # Opcional, todo en la raíz de gh-pages
           publish_branch: gh-pages
-          destination_dir: reportes  # El reporte irá en la carpeta 'reportes' dentro de gh-pages
+
+      - name: Get last report filename
+        id: get_filename
+        run: |
+          echo "reportFileName=$(ls reportes/reporte_*.html | tail -n 1)" >> $GITHUB_ENV
 
       - name: Add link to report in GitHub Actions Summary
         uses: actions/github-script@v7
         with:
           script: |
             const filename = process.env.reportFileName;
-            if (filename) {
-              const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename.split('/').pop()}`;
-              core.summary
-                .addHeading('🔗 Reporte de pruebas')
-                .addLink('Ver reporte Postman', link)
-                .write();
-            } else {
-              core.summary
-                .addHeading('🔗 Reporte de pruebas')
-                .addText('No se encontró ningún reporte generado.')
-                .write();
-            }
+            const link = `https://SEBASZC.github.io/springbootweb-restapi/reportes/${filename}`;
+            core.summary
+              .addHeading('🔗 Reporte de pruebas')
+              .addLink('Ver reporte Postman', link)
+              .write();
