@@ -28,10 +28,10 @@ jobs:
     runs-on: windows-latest  # Ejecutar en un entorno Windows
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         
       - name: Set up Node.js (Newman)
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '14'
 
@@ -45,13 +45,13 @@ jobs:
           call src/test/springboot-test-postman/run_test.bat
 
       - name: Upload Test Report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: postman-report
           path: src/test/springboot-test-postman/reporte_*.html
 
       - name: Display report in GitHub Actions
-        uses: actions/github-script@v4
+        uses: actions/github-script@v7
         with:
           script: |
             const reportPath = 'src/test/springboot-test-postman/reporte_*.html';
