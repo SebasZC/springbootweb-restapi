@@ -1,26 +1,41 @@
-name: Run Postman Tests and Deploy Report
+name: Run Postman Tests
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select Postman Environment'
+        required: true
+        default: 'localhost.postman_environment.json'
+        type: choice
+        options:
+          - localhost.postman_environment.json
+          - otro_entorno.postman_environment.json
+      branch:
+        description: 'Select Branch'
+        required: true
+        default: 'main'
+        type: string
 
 jobs:
-  run-tests:
-    name: Run Postman tests
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js (Newman)
         uses: actions/setup-node@v4
         with:
           node-version: '16'
 
-      - name: Install Newman and Reporter
+      - name: Install dependencies
         run: |
           npm install -g newman
           npm install -g newman-reporter-htmlextra
@@ -31,36 +46,45 @@ jobs:
           cd src/test/springboot-test-postman  # Cambiar al directorio donde está el archivo .bat
           cmd.exe /c run_test.bat  # Ejecutar el .bat
 
-      - name: Upload HTML report artifact
+      - name: Upload Test Report
         uses: actions/upload-artifact@v4
         with:
-          name: postman-html-report
+          name: postman-report
           path: src/test/springboot-test-postman/reporte_*.html
 
+      - name: Display report in GitHub Actions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'src/test/springboot-test-postman/';
+            const files = fs.readdirSync(path);
+            const reportFile = files.find(file => file.startsWith('reporte_') && file.endsWith('.html'));
+            
+            if (reportFile) {
+              const report = fs.readFileSync(path + reportFile, 'utf8');
+              console.log(report);
+            } else {
+              console.error('Report file not found!');
+            }
+  
   deploy-report:
-    name: Deploy HTML report
-    needs: run-tests
+    needs: test  # Esperar a que el job de tests termine
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download report artifact
+      - name: Download Postman report artifact
         uses: actions/download-artifact@v4
         with:
-          name: postman-html-report
-          path: reportes
+          name: postman-report
 
-      - name: Deploy report to GitHub Pages
+      - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: reportes
+          publish_dir: ./  # Publicar la carpeta donde se descargó el reporte
+          destination_dir: .  # Opcional, todo en raíz
           publish_branch: gh-pages
-          force_orphan: true  # Opcional, para limpiar antes el branch y no arrastrar basura vieja
-
-      - name: Add report URL to summary
-        run: |
-          report_file=$(ls reportes)
-          echo "🔗 [Ver reporte Postman](https://sebaszc.github.io/springbootweb-restapi/${report_file})" >> $GITHUB_STEP_SUMMARY
