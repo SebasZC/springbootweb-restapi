@@ -1,0 +1,199 @@
+{
+	"info": {
+		"_postman_id": "4793d800-3c48-4213-864c-f55c05925f9d",
+		"name": "SpringBoot Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36527835"
+	},
+	"item": [
+		{
+			"name": "CreateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Verifica que el código de estado sea 200\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.response.to.have.responseTime.lessThan(200); // Verifica que el tiempo de respuesta sea menor a 200ms (opcional)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains correct name\", function () {\r",
+							"    pm.response.to.have.jsonBody('name', 'SEBASTIÁN'); // Verifica que 'name' sea 'SEBASTIÁN'\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains correct lastName\", function () {\r",
+							"    pm.response.to.have.jsonBody('lastName', 'Zapata Castaño'); // Verifica que 'lastName' sea 'Zapata Castaño'\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains correct email\", function () {\r",
+							"    pm.response.to.have.jsonBody('email', 'zapatasebastian001@gmail.com'); // Verifica que 'email' sea 'zapatasebastian001@gmail.com'\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Sebastián\",\r\n    \"lastName\": \"Zapata Castaño\",\r\n    \"email\": \"zapatasebastian001@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{endpoint}}/api/var/create",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"var",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PathVariable",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Verifica que el código de estado sea 200\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.response.to.have.responseTime.lessThan(200); // Verifica que el tiempo de respuesta sea menor a 200ms (opcional)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains correct name\", function () {\r",
+							"    pm.response.to.have.jsonBody('product', 'teclado'); // Verifica que 'product' sea 'teclado'\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains correct name\", function () {\r",
+							"    pm.response.to.have.jsonBody('id', 123); // Verifica que 'id' sea 123\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/api/var/mix/teclado/123",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"var",
+						"mix",
+						"teclado",
+						"123"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FooPath",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Verifica que el código de estado sea 200\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.response.to.have.responseTime.lessThan(200); // Verifica que el tiempo de respuesta sea menor a 200ms (opcional)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains correct name\", function () {\r",
+							"    pm.response.to.have.jsonBody('message', 'Hello World, Are you good?'); // Verifica que 'message' sea 'Hello World, Are you good?'\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/api/params/foo?message=Hello World, Are you good?",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"params",
+						"foo"
+					],
+					"query": [
+						{
+							"key": "message",
+							"value": "Hello World, Are you good?"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ListUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200); // Verifica que el código de estado sea 200\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response time is less than 200ms\", function () {\r",
+							"    pm.response.to.have.responseTime.lessThan(200); // Verifica que el tiempo de respuesta sea menor a 200ms (opcional)\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{endpoint}}/api/list",
+					"host": [
+						"{{endpoint}}"
+					],
+					"path": [
+						"api",
+						"list"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
