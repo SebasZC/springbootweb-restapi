@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+        
       - name: Set up Node.js (Newman)
         uses: actions/setup-node@v4
         with:
@@ -42,9 +42,7 @@ jobs:
 
       - name: Run Postman tests
         run: |
-          cd src/test/springboot-test-postman  # Cambiar al directorio donde está el archivo .bat
-          cmd.exe /c run_test.bat  # Ejecutar el .bat
-        continue-on-error: true  # Continuar incluso si los tests fallan
+          call src/test/springboot-test-postman/run_test.bat
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
@@ -57,6 +55,13 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const reportPath = 'src/test/springboot-test-postman/reporte_*.html';
-            const report = fs.readFileSync(reportPath, 'utf8');
-            console.log(report);
+            const path = 'src/test/springboot-test-postman/';
+            const files = fs.readdirSync(path);
+            const reportFile = files.find(file => file.startsWith('reporte_') && file.endsWith('.html'));
+            
+            if (reportFile) {
+              const report = fs.readFileSync(path + reportFile, 'utf8');
+              console.log(report);
+            } else {
+              console.error('Report file not found!');
+            }
