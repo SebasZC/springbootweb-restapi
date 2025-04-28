@@ -55,7 +55,9 @@ jobs:
       - name: Get the last report file name
         id: get_filename
         run: |
-          echo "reportFileName=$(ls src/test/springboot-test-postman/reporte_*.html | tail -n 1)" >> $GITHUB_ENV
+          # Usamos PowerShell para encontrar el último archivo .html generado
+          $reportFile = Get-ChildItem -Path src/test/springboot-test-postman/ -Filter "reporte_*.html" | Sort-Object LastWriteTime | Select-Object -Last 1
+          echo "reportFileName=${reportFile.Name}" >> $GITHUB_ENV  # Guardamos el nombre del archivo
 
   deploy-report:
     needs: test  # Esperar a que el job de tests termine
@@ -70,11 +72,11 @@ jobs:
         with:
           name: postman-report
 
-      # Crear carpeta 'reportes' y mover el archivo HTML a esa carpeta
+      # Crear la carpeta 'reportes' y mover el archivo HTML descargado
       - name: Create reportes folder and move HTML file
         run: |
           mkdir -p reportes  # Crear la carpeta 'reportes' si no existe
-          mv "$REPORT_FILE" reportes/  # Mover el archivo HTML descargado a la carpeta 'reportes'
+          mv "src/test/springboot-test-postman/${{ env.reportFileName }}" reportes/  # Mover el archivo HTML a la carpeta 'reportes'
 
       # Eliminar reportes viejos (mayores a 30 días)
       - name: Delete old reports (older than 30 days)
@@ -95,7 +97,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const filename = process.env.reportFileName.split('/').pop();
+            const filename = process.env.reportFileName;
             const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename}`;
             core.summary
               .addHeading('🔗 Reporte de pruebas')
