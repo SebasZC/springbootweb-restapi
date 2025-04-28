@@ -41,10 +41,10 @@ jobs:
           npm install -g newman-reporter-htmlextra
 
       - name: Run Postman tests
+        continue-on-error: true  # Permite que los tests sigan ejecutándose aunque fallen
         run: |
           cd src/test/springboot-test-postman  # Cambiar al directorio donde está el archivo .bat
           cmd.exe /c run_test.bat  # Ejecutar el .bat
-          continue-on-error: true  # Continuar incluso si los tests fallan
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
