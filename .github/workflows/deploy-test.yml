@@ -88,4 +88,20 @@ jobs:
           publish_dir: ./  # Publicar la carpeta donde se descargó el reporte
           destination_dir: .  # Opcional, todo en raíz
           publish_branch: gh-pages
-                    
+
+      - name: Get report filename
+        id: get_filename
+        run: |
+          echo "filename=$(basename src/test/springboot-test-postman/reporte_*.html)" >> $GITHUB_ENV
+    
+      - name: Add link to report in GitHub Actions Summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const filename = process.env.filename;
+            const link = `https://SEBASZC.github.io/springbootweb-restapi/${filename}`;
+            core.summary
+              .addHeading('🔗 Reporte de pruebas')
+              .addLink('Ver reporte Postman', link)
+              .write();
+        
