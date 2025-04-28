@@ -81,11 +81,16 @@ jobs:
         with:
           name: postman-report
 
-      # Crear la carpeta 'reportes' en el directorio raíz
-      - name: Create reportes folder
+      # Buscar el archivo HTML y moverlo a la carpeta 'reportes'
+      - name: Create reportes folder and move HTML file
         run: |
           mkdir -p reportes  # Crear la carpeta 'reportes' si no existe
-          cp src/test/springboot-test-postman/reporte_*.html reportes/  # Copiar solo el archivo HTML en 'reportes/'
+          report_file=$(find src/test/springboot-test-postman -name "reporte_*.html" -print -quit)  # Buscar el archivo HTML
+          if [ -z "$report_file" ]; then
+            echo "No se encontró el archivo de reporte."
+            exit 1
+          fi
+          cp "$report_file" reportes/  # Copiar el archivo HTML encontrado a 'reportes/'
 
       # Eliminar reportes viejos (mayores a 30 días)
       - name: Delete old reports (older than 30 days)
