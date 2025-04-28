@@ -1,0 +1,59 @@
+name: Run Postman Tests
+
+on:
+  push:
+    branches:
+      - main  # O cualquier rama que desees que ejecute las pruebas al hacer push
+  pull_request:
+    branches:
+      - main  # O cualquier rama que desees que ejecute las pruebas al crear un PR
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select Postman Environment'
+        required: true
+        default: 'localhost.postman_environment.json'
+        type: choice
+        options:
+          - localhost.postman_environment.json
+          - otro_entorno.postman_environment.json  # Agregar otros entornos si tienes más
+      branch:
+        description: 'Select Branch'
+        required: true
+        default: 'main'
+        type: string
+
+jobs:
+  test:
+    runs-on: windows-latest  # Ejecutar en un entorno Windows
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Node.js (Newman)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-htmlextra
+
+      - name: Run Postman tests
+        run: |
+          call src/test/springboot-test-postman/run_test.bat
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v2
+        with:
+          name: postman-report
+          path: src/test/springboot-test-postman/reporte_*.html
+
+      - name: Display report in GitHub Actions
+        uses: actions/github-script@v4
+        with:
+          script: |
+            const reportPath = 'src/test/springboot-test-postman/reporte_*.html';
+            const report = fs.readFileSync(reportPath, 'utf8');
+            console.log(report);
