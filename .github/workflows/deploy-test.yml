@@ -42,7 +42,8 @@ jobs:
 
       - name: Run Postman tests
         run: |
-          cmd.exe /c src/test/springboot-test-postman/run_test.bat
+          cd src/test/springboot-test-postman
+          cmd.exe /c run_test.bat
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
