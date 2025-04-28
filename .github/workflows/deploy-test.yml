@@ -33,7 +33,7 @@ jobs:
       - name: Set up Node.js (Newman)
         uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '18'
 
       - name: Install dependencies
         run: |
