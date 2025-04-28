@@ -72,39 +72,13 @@ jobs:
           reportFile=$(ls postman-report/reporte_*.html | tail -n 1)
           echo "reportFileName=${reportFile}" >> $GITHUB_ENV  # Guardamos el nombre completo del archivo (ruta relativa)
 
-      - name: Create reportes folder and move HTML file
-        run: |
-          # Crear la carpeta 'reportes' si no existe
-          mkdir -v reportes
-          mv "${{ env.reportFileName }}" reportes/  # Mover el archivo HTML a la carpeta 'reportes'
-
-      - name: Display report in GitHub Actions
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = 'postman-report/';
-            const files = fs.readdirSync(path);
-            const reportFile = files.find(file => file.startsWith('reporte_') && file.endsWith('.html'));
-            
-            if (reportFile) {
-              const report = fs.readFileSync(path + reportFile, 'utf8');
-              console.log(report);
-            } else {
-              console.error('Report file not found!');
-            }
-
-      - name: Delete old reports (older than 30 days)
-        run: |
-          find reportes -name "*.html" -type f -mtime +30 -delete
-
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./reportes  # Publicar solo la carpeta 'reportes'
-          keep_files: true
+          publish_dir: postman-report  # Publicar el directorio donde está el archivo HTML
           publish_branch: gh-pages
+          destination_dir: reportes  # El reporte irá en la carpeta 'reportes' dentro de gh-pages
 
       - name: Add link to report in GitHub Actions Summary
         uses: actions/github-script@v7
@@ -112,7 +86,7 @@ jobs:
           script: |
             const filename = process.env.reportFileName;
             if (filename) {
-              const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename}`;
+              const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename.split('/').pop()}`;
               core.summary
                 .addHeading('🔗 Reporte de pruebas')
                 .addLink('Ver reporte Postman', link)
