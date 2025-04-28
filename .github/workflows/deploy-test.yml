@@ -67,3 +67,25 @@ jobs:
             } else {
               console.error('Report file not found!');
             }
+  
+  deploy-report:
+    needs: test  # Esperar a que el job de tests termine
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Postman report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: postman-report
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./  # Publicar la carpeta donde se descargó el reporte
+          destination_dir: .  # Opcional, todo en raíz
+          publish_branch: gh-pages
+                    
