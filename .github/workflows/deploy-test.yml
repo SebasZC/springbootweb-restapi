@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Set up Node.js (Newman)
         uses: actions/setup-node@v4
         with:
@@ -52,24 +52,13 @@ jobs:
           name: postman-report
           path: src/test/springboot-test-postman/reporte_*.html
 
-      - name: Display report in GitHub Actions
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = 'src/test/springboot-test-postman/';
-            const files = fs.readdirSync(path);
-            const reportFile = files.find(file => file.startsWith('reporte_') && file.endsWith('.html'));
-            
-            if (reportFile) {
-              const report = fs.readFileSync(path + reportFile, 'utf8');
-              console.log(report);
-            } else {
-              console.error('Report file not found!');
-            }
-  
+      - name: Get the last report file name
+        id: get_filename
+        run: |
+          echo "reportFileName=$(ls src/test/springboot-test-postman/reporte_*.html | tail -n 1)" >> $GITHUB_ENV
+
   deploy-report:
-    needs: test
+    needs: test  # Esperar a que el job de tests termine
     runs-on: ubuntu-latest
 
     steps:
@@ -81,28 +70,16 @@ jobs:
         with:
           name: postman-report
 
-      # Buscar el archivo HTML y moverlo a la carpeta 'reportes'
+      # Crear carpeta 'reportes' y mover el archivo HTML a esa carpeta
       - name: Create reportes folder and move HTML file
         run: |
           mkdir -p reportes  # Crear la carpeta 'reportes' si no existe
-          report_file=$(find src/test/springboot-test-postman -name "reporte_*.html" -print -quit)  # Buscar el archivo HTML
-          if [ -z "$report_file" ]; then
-            echo "No se encontró el archivo de reporte."
-            exit 1
-          fi
-          cp "$report_file" reportes/  # Copiar el archivo HTML encontrado a 'reportes/'
+          mv "$REPORT_FILE" reportes/  # Mover el archivo HTML descargado a la carpeta 'reportes'
 
       # Eliminar reportes viejos (mayores a 30 días)
       - name: Delete old reports (older than 30 days)
         run: |
           find reportes -name "*.html" -type f -mtime +30 -delete
-
-      # Obtener el nombre del archivo de reporte
-      - name: Get report filename
-        id: get_filename
-        run: |
-          report_file=$(find src/test/springboot-test-postman -name "reporte_*.html" -print -quit)
-          echo "filename=$(basename $report_file)" >> $GITHUB_ENV
 
       # Deploy solo de la carpeta 'reportes/'
       - name: Deploy to GitHub Pages
@@ -118,7 +95,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const filename = process.env.filename;
+            const filename = process.env.reportFileName.split('/').pop();
             const link = `https://sebaszc.github.io/springbootweb-restapi/reportes/${filename}`;
             core.summary
               .addHeading('🔗 Reporte de pruebas')
