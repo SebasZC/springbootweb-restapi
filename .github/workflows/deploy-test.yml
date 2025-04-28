@@ -4,28 +4,12 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Select Postman Environment'
-        required: true
-        default: 'localhost.postman_environment.json'
-        type: choice
-        options:
-          - localhost.postman_environment.json
-          - otro_entorno.postman_environment.json
-      branch:
-        description: 'Select Branch'
-        required: true
-        default: 'main'
-        type: string
 
 jobs:
-  test:
-    runs-on: windows-latest
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -41,60 +25,32 @@ jobs:
           npm install -g newman-reporter-htmlextra
 
       - name: Run Postman tests
-        continue-on-error: true  # Permite que los tests sigan ejecutándose aunque fallen
+        continue-on-error: true
         run: |
-          cd src/test/springboot-test-postman  # Cambiar al directorio donde está el archivo .bat
-          cmd.exe /c run_test.bat  # Ejecutar el .bat
+          cd src/test/springboot-test-postman
+          chmod +x run_test.bat
+          ./run_test.bat
 
-      - name: Upload Test Report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: postman-report
-          path: src/test/springboot-test-postman/reporte_*.html  # Asegurarse de que el archivo HTML se está subiendo correctamente
-
-  deploy-report:
-    needs: test  # Esperar a que el job de tests termine
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download Postman report artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: postman-report
-
-      # Descomprimir el artefacto descargado
-      - name: Unzip Postman report
+      - name: Find report file
+        id: find_report
         run: |
-          mkdir postman-report
-          unzip postman-report.zip -d postman-report/
+          report_file=$(find src/test/springboot-test-postman -name 'reporte_*.html' | head -n 1)
+          echo "report_file=$report_file" >> $GITHUB_ENV
 
-      # Verificar que el archivo HTML fue descomprimido correctamente
-      - name: List downloaded and unzipped files
-        run: |
-          ls postman-report/
-
-      - name: Deploy HTML file to GitHub Pages
+      - name: Deploy report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: postman-report  # Usar directamente la carpeta que contiene el reporte
+          publish_dir: src/test/springboot-test-postman
           publish_branch: gh-pages
 
-      - name: Get last report filename
-        id: get_filename
-        run: |
-          echo "reportFileName=$(ls postman-report/reporte_*.html | tail -n 1)" >> $GITHUB_ENV
-
-      - name: Add link to report in GitHub Actions Summary
+      - name: Add link to GitHub Actions Summary
         uses: actions/github-script@v7
         with:
           script: |
-            const filename = process.env.reportFileName;
-            const link = `https://SEBASZC.github.io/springbootweb-restapi/${filename}`;
+            const file = process.env.report_file.split('/').pop();
+            const url = `https://sebaszc.github.io/springbootweb-restapi/${file}`;
             core.summary
               .addHeading('🔗 Reporte de pruebas')
-              .addLink('Ver reporte Postman', link)
+              .addLink('Ver reporte Postman', url)
               .write();
