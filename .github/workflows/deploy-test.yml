@@ -7,50 +7,60 @@ on:
   workflow_dispatch:
 
 jobs:
-  test-and-deploy:
+  run-tests:
+    name: Run Postman tests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js (Newman)
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '16'
 
-      - name: Install dependencies
+      - name: Install Newman and Reporter
         run: |
           npm install -g newman
           npm install -g newman-reporter-htmlextra
 
       - name: Run Postman tests
-        continue-on-error: true
         run: |
           cd src/test/springboot-test-postman
           chmod +x run_test.bat
           ./run_test.bat
 
-      - name: Find report file
-        id: find_report
-        run: |
-          report_file=$(find src/test/springboot-test-postman -name 'reporte_*.html' | head -n 1)
-          echo "report_file=$report_file" >> $GITHUB_ENV
+      - name: Upload HTML report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-html-report
+          path: src/test/springboot-test-postman/reporte_*.html
+
+  deploy-report:
+    name: Deploy HTML report
+    needs: run-tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: postman-html-report
+          path: reportes
 
       - name: Deploy report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: src/test/springboot-test-postman
+          publish_dir: reportes
           publish_branch: gh-pages
+          force_orphan: true  # Opcional, para limpiar antes el branch y no arrastrar basura vieja
 
-      - name: Add link to GitHub Actions Summary
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const file = process.env.report_file.split('/').pop();
-            const url = `https://sebaszc.github.io/springbootweb-restapi/${file}`;
-            core.summary
-              .addHeading('🔗 Reporte de pruebas')
-              .addLink('Ver reporte Postman', url)
-              .write();
+      - name: Add report URL to summary
+        run: |
+          report_file=$(ls reportes)
+          echo "🔗 [Ver reporte Postman](https://sebaszc.github.io/springbootweb-restapi/${report_file})" >> $GITHUB_STEP_SUMMARY
