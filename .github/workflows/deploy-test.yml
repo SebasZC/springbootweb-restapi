@@ -91,7 +91,7 @@ jobs:
 
       - name: Find latest HTML report and add link to summary
         run: |
-          cd postman-report/src/test/springboot-test-postman
+          cd postman-report
           FILE=$(ls reporte_*.html | head -n 1)
           echo "Archivo encontrado: $FILE"
           echo "### ✅ [Ver reporte aquí](https://SebasZC.github.io/springbootweb-restapi/$FILE)" >> $GITHUB_STEP_SUMMARY
