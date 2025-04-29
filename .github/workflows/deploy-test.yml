@@ -86,7 +86,7 @@ jobs:
         id: find_report
         run: |
           FILE=$(ls postman-report/reporte_*.html | head -n 1)
-          echo "report_file=${FILE#postman-report/}" >> $GITHUB_OUTPUT
+          echo "report_file=$(basename "$FILE")" >> $GITHUB_OUTPUT
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -97,4 +97,4 @@ jobs:
 
       - name: Add report link to Summary
         run: |
-          echo "### 📝 [Ver reporte aquí](https://<tu-usuario>.github.io/<tu-repo>/${{ steps.report-name.outputs.report_file }})" >> $GITHUB_STEP_SUMMARY
+          echo "### 📝 [Ver reporte aquí](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.report-name.outputs.report_file }})" >> $GITHUB_STEP_SUMMARY
