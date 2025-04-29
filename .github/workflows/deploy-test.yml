@@ -87,8 +87,8 @@ jobs:
         working-directory: postman-report
         run: |
           FILE=$(ls reporte_*.html | head -n 1)
-          echo "report_file=$FILE" >> $GITHUB_OUTPUT
           echo "Archivo encontrado: $FILE"
+          echo "report_file=$FILE" >> $GITHUB_OUTPUT
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -101,4 +101,4 @@ jobs:
         env:
           REPORT_FILE: ${{ steps.report-name.outputs.report_file }}
         run: |
-          echo "### ✅ [Ver reporte aquí](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/$REPORT_FILE)" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ [Ver reporte aquí](https://SebasZC.github.io/springbootweb-restapi/${{ steps.report-name.outputs.report_file }})" >> $GITHUB_STEP_SUMMARY
