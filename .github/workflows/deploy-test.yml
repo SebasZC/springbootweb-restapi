@@ -84,6 +84,7 @@ jobs:
 
       - name: Find latest HTML report
         id: find_report
+        working-directory: postman-report/src/test/springboot-test-postman
         run: |
           FILE=$(ls *.html | head -n 1)
           echo "report_file=$FILE" >> $GITHUB_OUTPUT
