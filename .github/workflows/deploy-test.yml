@@ -85,8 +85,9 @@ jobs:
       - name: Find latest HTML report
         id: find_report
         run: |
-          FILE=$(ls postman-report/reporte_*.html | head -n 1)
-          echo "report_file=$(basename "$FILE")" >> $GITHUB_OUTPUT
+          FILE=$(ls *.html | head -n 1)
+          echo "report_file=$FILE" >> $GITHUB_OUTPUT
+          echo "Archivo encontrado: $FILE"  # <--- Aquí se imprime en consola
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
