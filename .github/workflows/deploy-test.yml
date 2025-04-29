@@ -84,11 +84,11 @@ jobs:
 
       - name: Find latest HTML report
         id: find_report
-        working-directory: postman-report/src/test/springboot-test-postman
+        working-directory: postman-report
         run: |
-          FILE=$(ls *.html | head -n 1)
+          FILE=$(ls reporte_*.html | head -n 1)
           echo "report_file=$FILE" >> $GITHUB_OUTPUT
-          echo "Archivo encontrado: $FILE"  # <--- Aquí se imprime en consola
+          echo "Archivo encontrado: $FILE"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
@@ -99,4 +99,4 @@ jobs:
 
       - name: Add report link to Summary
         run: |
-          echo "### 📝 [Ver reporte aquí](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.report-name.outputs.report_file }})" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ [Ver reporte aquí](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ steps.report-name.outputs.report_file }})" >> $GITHUB_STEP_SUMMARY
