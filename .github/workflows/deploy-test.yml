@@ -41,10 +41,10 @@ jobs:
           npm install -g newman-reporter-htmlextra
 
       - name: Run Postman tests
-        continue-on-error: true  # Permite que los tests sigan ejecutándose aunque fallen
+        continue-on-error: true
         run: |
-          cd src/test/springboot-test-postman  # Cambiar al directorio donde está el archivo .bat
-          cmd.exe /c run_test.bat  # Ejecutar el .bat
+          cd src/test/springboot-test-postman
+          cmd.exe /c run_test.bat
 
       - name: Upload Test Report
         uses: actions/upload-artifact@v4
@@ -67,9 +67,9 @@ jobs:
             } else {
               console.error('Report file not found!');
             }
-  
+
   deploy-report:
-    needs: test  # Esperar a que el job de tests termine
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -80,11 +80,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: postman-report
+          path: postman-report
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./  # Publicar la carpeta donde se descargó el reporte
-          #destination_dir: .  # Opcional, todo en raíz
+          publish_dir: postman-report
           publish_branch: gh-pages
+
+      - name: Find latest HTML report and add link to summary
+        run: |
+          cd postman-report
+          FILE=$(ls reporte_*.html | head -n 1)
+          echo "Archivo encontrado: $FILE"
+          echo "### ✅ [Ver reporte aquí](https://SebasZC.github.io/springbootweb-restapi/$FILE)" >> $GITHUB_STEP_SUMMARY
+
