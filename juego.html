@@ -1,166 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Juego de Retos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'Luckiest Guy', cursive;
-      background: radial-gradient(ellipse at center, #ff4d4d, #660000);
-      color: white;
       margin: 0;
-      padding: 0;
+      height: 100vh;
+      background: radial-gradient(circle, #1a1a1a, #000000);
       display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      text-align: center;
-    }
-    h1 {
-      font-size: 3em;
-      margin-bottom: 20px;
-      text-shadow: 2px 2px 5px #000;
-    }
-    #challenge {
-      font-size: 1.5em;
+      align-items: center;
+      font-family: 'Luckiest Guy', cursive;
+      color: #fff;
       padding: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
-      margin: 20px;
-      min-height: 120px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.5);
-      transition: transform 0.4s ease;
     }
+
+    .container {
+      text-align: center;
+      background: #222;
+      padding: 30px 20px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #ffcc00;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    h1 {
+      font-size: 8vw;
+      margin-bottom: 20px;
+      color: #ffcc00;
+      text-shadow: 2px 2px 10px #ff0000;
+    }
+
+    #reto {
+      margin-top: 20px;
+      font-size: 5vw;
+      min-height: 100px;
+      color: #ffffff;
+      text-shadow: 1px 1px 5px #000;
+      white-space: pre-wrap;
+    }
+
     button {
-      font-size: 1.2em;
       padding: 15px 30px;
+      font-size: 6vw;
+      background: #ff0000;
+      color: white;
       border: none;
-      border-radius: 10px;
-      background-color: gold;
-      color: #660000;
+      border-radius: 12px;
       cursor: pointer;
-      box-shadow: 2px 2px 10px #000;
-      transition: background-color 0.3s ease;
+      transition: transform 0.2s ease, background 0.3s ease;
+      box-shadow: 0 4px 10px rgba(255, 0, 0, 0.6);
+      max-width: 100%;
     }
+
     button:hover {
-      background-color: #ffd700;
+      background: #ff6600;
+      transform: scale(1.05);
     }
-    @media screen and (max-width: 600px) {
+
+    @media (min-width: 768px) {
       h1 {
-        font-size: 2em;
+        font-size: 48px;
       }
-      #challenge {
-        font-size: 1.2em;
-        padding: 15px;
+      #reto {
+        font-size: 22px;
       }
       button {
-        padding: 10px 20px;
-        font-size: 1em;
+        font-size: 24px;
       }
     }
   </style>
 </head>
 <body>
-  <h1>Juego de Retos 🔥</h1>
-  <div id="challenge">Presiona el botón para tu reto</div>
-  <button onclick="getChallenge()">🎲 Obtener Reto</button>
+
+  <div class="container">
+    <h1>🎰 Juego de Retos 🔥</h1>
+    <button onclick="mostrarReto()">¡Dame un reto!</button>
+    <div id="reto">Haz clic en el botón para obtener un reto</div>
+    <audio id="sonido" src="https://www.myinstants.com/media/sounds/slot-machine.mp3"></audio>
+  </div>
 
   <script>
-    const challenges = [
-    "Tira una moneda: Cara = te quitas la prenda inferior; Sello = das un beso en el cuello al jugador frente a ti.\nPenitencia: 2 shots si te niegas.",
-    "Usa tu boca para darle de comer un snack al jugador a tu derecha (no puedes usar las manos).\nPenitencia: 1 shot si te niegas.",
-    "Chúpale el dedo del pie al jugador que el grupo elija.\nPenitencia: 2 shots si te niegas.",
-    "Tira una moneda: Cara = deja que alguien te dé un beso en los pezones (ropa puesta); Sello = tú das el beso.\nPenitencia: 2 shots si te niegas.",
-    "Simula sexo oral con un plátano mirando al jugador del frente, sin romper contacto visual.\nPenitencia: 2 shots si te niegas.",
-    "Elige un jugador y toca su entrepierna (ropa puesta) durante 5 segundos.\nPenitencia: 2 shots si te niegas.",
-    "Muestra una foto atrevida tuya (con emojis cubriendo lo prohibido).\nPenitencia: 2 shots si no haces.",
-    "Lame el abdomen del jugador del mismo sexo más cercano.\nPenitencia: 2 shots si te niegas.",
-    "Lame la lengua del jugador a tu izquierda por 3 segundos.\nPenitencia: 2 shots si no lo haces.",
-    "Tira una moneda: Cara = recibes una nalgada; Sello = das una. El grupo elige quién.\nPenitencia: 1 shot si te niegas.",
-    "Ponte una prenda de ropa interior sobre la cabeza por 2 rondas.\nPenitencia: 1 shot si no lo haces.",
-    "Haz un striptease mientras el jugador a tu derecha te lanza billetes (ficticios o reales).\nPenitencia: 2 shots si te niegas.",
-    "Besa en la boca al jugador que el grupo elija... y que no sea tu crush obvio.\nPenitencia: 1 shot si te niegas.",
-    "Simula una posición sexual con el jugador del frente durante 10 segundos (sin contacto real).\nPenitencia: 2 shots si no lo haces.",
-    "Bebe un shot desde el abdomen del jugador a tu derecha.\nPenitencia: 1 shot si no lo haces.",
-    "Véndate los ojos. Tres jugadores te besan. Adivina el orden.\nPenitencia: 2 shots si no aceptas o fallas completamente.",
-    "Haz una demostración de sexo oral con un plátano mientras miras al jugador del frente.\nPenitencia: 2 shots si te niegas.",
-    "Elige dos jugadores del mismo sexo para que se besen durante 10 segundos.\nPenitencia: 1 shot por cada jugador que se niegue.",
-    "Cúbrete los ojos. Un jugador te besará. Adivina quién fue.\nPenitencia: 1 shot si fallas, 2 si te niegas al reto.",
-    "Haz un striptease leve frente al jugador del frente.\nPenitencia: 2 shots si no lo haces.",
-    "Lame suavemente la oreja del jugador a tu izquierda.\nPenitencia: 1 shot si te niegas.",
-    "Deja que el jugador a tu derecha te dé un masaje sensual por 1 minuto.\nPenitencia: 1 shot si no aceptas.",
-    "Besa el cuello del jugador frente a ti lentamente.\nPenitencia: 1 shot si te niegas.",
-    "Confiesa tu fantasía más atrevida con alguien del grupo.\nPenitencia: 1 shot si te niegas a confesar.",
-    "Chupa un cubo de hielo mientras miras al jugador a tu izquierda.\nPenitencia: 1 shot si no lo haces.",
-    "Besa al jugador del mismo sexo más cercano.\nPenitencia: 1 shot si te niegas.",
-    "Deja que el jugador de la izquierda dibuje algo con el dedo en tu pecho (ropa puesta).\nPenitencia: 1 shot si no lo haces.",
-    "Pasa un hielo de boca en boca entre tú y los jugadores a ambos lados.\nPenitencia: 2 shots si no lo haces.",
-    "Finge cómo suenas cuando llegas al clímax.\nPenitencia: 1 shot si te niegas.",
-    "Haz un baile sensual al jugador del mismo sexo que el grupo elija.\nPenitencia: 2 shots si te niegas.",
-    "Deja que el jugador a tu derecha te dé un beso en el pecho (sobre la ropa).\nPenitencia: 1 shot si te niegas.",
-    "Escribe el nombre de tu 'crush' en el grupo y muéstralo al final.\nPenitencia: 1 shot si te niegas.",
-    "Permite que el jugador frente a ti te amarre las manos con una prenda durante 2 rondas.\nPenitencia: 1 shot si te niegas.",
-    "Acaricia el muslo del jugador a tu izquierda por 10 segundos.\nPenitencia: 1 shot si te niegas.",
-    "Haz un masaje lento en los hombros del jugador que escoja el grupo.\nPenitencia: 1 shot si no lo haces.",
-    "Simula un beso apasionado con tu mano durante 5 segundos.\nPenitencia: 1 shot si te niegas.",
-    "Haz un 'twerking' frente al grupo durante 10 segundos.\nPenitencia: 2 shots si te niegas.",
-    "Besa la parte del cuerpo que el grupo escoja (ropa puesta) de otro jugador.\nPenitencia: 1 shot si te niegas.",
-    "Simula una escena de película romántica con el jugador que esté al frente.\nPenitencia: 1 shot si te niegas.",
-    "Lame el cuello del jugador a tu derecha lentamente.\nPenitencia: 1 shot si te niegas.",
-    "Simula un strip poker: quítate una prenda mientras lanzas un beso al aire.\nPenitencia: 2 shots si no lo haces.",
-    "Ríete de manera sexy durante 10 segundos mientras miras a alguien fijamente.\nPenitencia: 1 shot si te niegas.",
-    "Lame la punta de un plátano sin romper contacto visual con alguien.\nPenitencia: 1 shot si te niegas.",
-    "Haz un gemido falso mientras tomas un shot.\nPenitencia: Otro shot si no lo haces.",
-    "Permite que el grupo elija una parte del cuerpo (ropa puesta) para que alguien te dé un beso.\nPenitencia: 1 shot si no lo haces.",
-    "Siente el pecho de otro jugador (ropa puesta) y describe qué sientes con una metáfora.\nPenitencia: 1 shot si te niegas.",
-    "Haz contacto visual con otro jugador durante 15 segundos sin reír.\nPenitencia: 1 shot si te ríes o te niegas.",
-    "Haz una pose sensual frente al grupo y manténla por 10 segundos.\nPenitencia: 1 shot si no lo haces.",
-    "Haz que un jugador del grupo elija una parte del cuerpo y dale un beso allí (ropa puesta).\nPenitencia: 2 shots si te niegas.",
-    "Haz una caminata de pasarela sexy frente a todos.\nPenitencia: 1 shot si te niegas.",
-    "Muestra el historial de búsqueda de tu navegador del día.\nPenitencia: 2 shots si te niegas.",
-    "Envía un emoji 🔥 a tu ex y muéstralo.\nPenitencia: 2 shots si te niegas.",
-    "Haz una videollamada a alguien y dile algo cursi y sensual.\nPenitencia: 2 shots si no lo haces.",
-    "Lame el borde de tu vaso como si lo sedujeras.\nPenitencia: 1 shot si te niegas.",
-    "Haz un 'challenge' sexy de TikTok inventado por ti frente al grupo.\nPenitencia: 2 shots si no lo haces.",
-    "Haz una confesión incómoda que involucre algo íntimo.\nPenitencia: 1 shot si te niegas.",
-    "Elige a dos jugadores para hacer un triángulo de besos (mejilla a mejilla).\nPenitencia: 1 shot si no lo haces.",
-    "Escribe con tu dedo una palabra sexy sobre el pecho de otro jugador.\nPenitencia: 1 shot si te niegas.",
-    "Finge una llamada caliente con alguien desconocido.\nPenitencia: 2 shots si te niegas.",
-    "Haz un TikTok sexy con un amigo del grupo.\nPenitencia: 2 shots si te niegas."
-    "Imita a un animal durante 30 segundos.",
-    "Habla como un robot durante 2 rondas.",
-    "Haz una caminata ridícula alrededor del grupo.",
-    "Haz una mímica de una película famosa. ¡Que adivinen!",
-    "Cuenta un chiste malo. Si nadie se ríe, tomas un shot.",
-    "Habla sin usar vocales durante 1 minuto.",
-    "Canta el coro de tu canción favorita sin música.",
-    "Haz 10 sentadillas mientras haces caras graciosas.",
-    "Baila como si estuvieras en una fiesta de los años 80.",
-    "Actúa como si estuvieras en una telenovela por 30 segundos.",
-    "Dibuja con los ojos cerrados y deja que adivinen qué fue.",
-    "Llama a alguien del grupo con un apodo inventado durante 3 rondas.",
-    "Inventa una canción con el nombre de una persona del grupo.",
-    "Di un trabalenguas sin equivocarte. Si fallas, shot.",
-    "Haz una declaración dramática como en una película de acción.",
-    "Haz una escena como si hubieras ganado un Oscar.",
-    "Haz de cuenta que eres un vendedor ambulante vendiendo plátanos.",
-    "Haz un selfie grupal con todos haciendo muecas.",
-    "Cuenta una anécdota vergonzosa (si te niegas, tomas un shot).",
-    "Haz que todos se paren y bailen contigo una mini coreografía.",
+    const retos = [
+      "Tira una moneda: Cara = te quitas la prenda inferior; Sello = das un beso en el cuello al jugador frente a ti.\nPenitencia: 2 shots si te niegas.",
+      "Usa tu boca para darle de comer un snack al jugador a tu derecha (no puedes usar las manos).\nPenitencia: 1 shot si te niegas.",
+      "Chúpale el dedo del pie al jugador que el grupo elija.\nPenitencia: 2 shots si te niegas.",
+      "Tira una moneda: Cara = deja que alguien te dé un beso en los pezones (ropa puesta); Sello = tú das el beso.\nPenitencia: 2 shots si te niegas.",
+      "Simula sexo oral con un plátano mirando al jugador del frente, sin romper contacto visual.\nPenitencia: 2 shots si te niegas.",
+      "Elige un jugador y toca su entrepierna (ropa puesta) durante 5 segundos.\nPenitencia: 2 shots si te niegas.",
+      "Muestra una foto atrevida tuya (con emojis cubriendo lo prohibido).\nPenitencia: 2 shots si no haces.",
+      "Lame el abdomen del jugador del mismo sexo más cercano.\nPenitencia: 2 shots si te niegas.",
+      "Lame la lengua del jugador a tu izquierda por 3 segundos.\nPenitencia: 2 shots si no lo haces.",
+      "Tira una moneda: Cara = recibes una nalgada; Sello = das una. El grupo elige quién.\nPenitencia: 1 shot si te niegas.",
+      "Ponte una prenda de ropa interior sobre la cabeza por 2 rondas.\nPenitencia: 1 shot si no lo haces.",
+      "Haz un striptease mientras el jugador a tu derecha te lanza billetes (ficticios o reales).\nPenitencia: 2 shots si te niegas.",
+      "Besa en la boca al jugador que el grupo elija... y que no sea tu crush obvio.\nPenitencia: 1 shot si te niegas.",
+      "Simula una posición sexual con el jugador del frente durante 10 segundos (sin contacto real).\nPenitencia: 2 shots si no lo haces.",
+      "Bebe un shot desde el abdomen del jugador a tu derecha.\nPenitencia: 1 shot si no lo haces.",
+      "Véndate los ojos. Tres jugadores te besan. Adivina el orden.\nPenitencia: 2 shots si no aceptas o fallas completamente.",
+      "Haz una demostración de sexo oral con un plátano mientras miras al jugador del frente.\nPenitencia: 2 shots si te niegas.",
+      "Elige dos jugadores del mismo sexo para que se besen durante 10 segundos.\nPenitencia: 1 shot por cada jugador que se niegue.",
+      "Cúbrete los ojos. Un jugador te besará. Adivina quién fue.\nPenitencia: 1 shot si fallas, 2 si te niegas al reto.",
+      "Haz un striptease leve frente al jugador del frente.\nPenitencia: 2 shots si no lo haces.",
+      "Lame suavemente la oreja del jugador a tu izquierda.\nPenitencia: 1 shot si te niegas.",
+      "Deja que el jugador a tu derecha te dé un masaje sensual por 1 minuto.\nPenitencia: 1 shot si no aceptas.",
+      "Besa el cuello del jugador frente a ti lentamente.\nPenitencia: 1 shot si te niegas.",
+      "Confiesa tu fantasía más atrevida con alguien del grupo.\nPenitencia: 1 shot si te niegas a confesar.",
+      "Chupa un cubo de hielo mientras miras al jugador a tu izquierda.\nPenitencia: 1 shot si no lo haces.",
+      "Besa al jugador del mismo sexo más cercano.\nPenitencia: 1 shot si te niegas.",
+      "Deja que el jugador de la izquierda dibuje algo con el dedo en tu pecho (ropa puesta).\nPenitencia: 1 shot si no lo haces.",
+      "Pasa un hielo de boca en boca entre tú y los jugadores a ambos lados.\nPenitencia: 2 shots si no lo haces.",
+      "Finge cómo suenas cuando llegas al clímax.\nPenitencia: 1 shot si te niegas.",
+      "Haz un baile sensual al jugador del mismo sexo que el grupo elija.\nPenitencia: 2 shots si te niegas.",
+      "Deja que el jugador a tu derecha te dé un beso en el pecho (sobre la ropa).\nPenitencia: 1 shot si te niegas.",
+      "Escribe el nombre de tu 'crush' en el grupo y muéstralo al final.\nPenitencia: 1 shot si te niegas.",
+      "Permite que el jugador frente a ti te amarre las manos con una prenda durante 2 rondas.\nPenitencia: 1 shot si te niegas.",
+      "Acaricia el muslo del jugador a tu izquierda por 10 segundos.\nPenitencia: 1 shot si te niegas.",
+      "Haz un masaje lento en los hombros del jugador que escoja el grupo.\nPenitencia: 1 shot si no lo haces.",
+      "Simula un beso apasionado con tu mano durante 5 segundos.\nPenitencia: 1 shot si te niegas.",
+      "Haz un 'twerking' frente al grupo durante 10 segundos.\nPenitencia: 2 shots si te niegas.",
+      "Besa la parte del cuerpo que el grupo escoja (ropa puesta) de otro jugador.\nPenitencia: 1 shot si te niegas.",
+      "Simula una escena de película romántica con el jugador que esté al frente.\nPenitencia: 1 shot si te niegas.",
+      "Lame el cuello del jugador a tu derecha lentamente.\nPenitencia: 1 shot si te niegas.",
+      "Simula un strip poker: quítate una prenda mientras lanzas un beso al aire.\nPenitencia: 2 shots si no lo haces.",
+      "Ríete de manera sexy durante 10 segundos mientras miras a alguien fijamente.\nPenitencia: 1 shot si te niegas.",
+      "Lame la punta de un plátano sin romper contacto visual con alguien.\nPenitencia: 1 shot si te niegas.",
+      "Haz un gemido falso mientras tomas un shot.\nPenitencia: Otro shot si no lo haces.",
+      "Permite que el grupo elija una parte del cuerpo (ropa puesta) para que alguien te dé un beso.\nPenitencia: 1 shot si no lo haces.",
+      "Siente el pecho de otro jugador (ropa puesta) y describe qué sientes con una metáfora.\nPenitencia: 1 shot si te niegas.",
+      "Haz contacto visual con otro jugador durante 15 segundos sin reír.\nPenitencia: 1 shot si te ríes o te niegas.",
+      "Haz una pose sensual frente al grupo y manténla por 10 segundos.\nPenitencia: 1 shot si no lo haces.",
+      "Haz que un jugador del grupo elija una parte del cuerpo y dale un beso allí (ropa puesta).\nPenitencia: 2 shots si te niegas.",
+      "Haz una caminata de pasarela sexy frente a todos.\nPenitencia: 1 shot si te niegas.",
+      "Muestra el historial de búsqueda de tu navegador del día.\nPenitencia: 2 shots si te niegas.",
+      "Envía un emoji 🔥 a tu ex y muéstralo.\nPenitencia: 2 shots si te niegas.",
+      "Haz una videollamada a alguien y dile algo cursi y sensual.\nPenitencia: 2 shots si no lo haces.",
+      "Lame el borde de tu vaso como si lo sedujeras.\nPenitencia: 1 shot si te niegas.",
+      "Haz un 'challenge' sexy de TikTok inventado por ti frente al grupo.\nPenitencia: 2 shots si no lo haces.",
+      "Haz una confesión incómoda que involucre algo íntimo.\nPenitencia: 1 shot si te niegas.",
+      "Elige a dos jugadores para hacer un triángulo de besos (mejilla a mejilla).\nPenitencia: 1 shot si no lo haces.",
+      "Escribe con tu dedo una palabra sexy sobre el pecho de otro jugador.\nPenitencia: 1 shot si te niegas.",
+      "Finge una llamada caliente con alguien desconocido.\nPenitencia: 2 shots si te niegas.",
+      "Haz un TikTok sexy con un amigo del grupo.\nPenitencia: 2 shots si te niegas."
 ];
 
-    function getChallenge() {
-      const challengeText = challenges[Math.floor(Math.random() * challenges.length)];
-      const challengeBox = document.getElementById("challenge");
-      challengeBox.style.transform = "scale(1.1)";
-      setTimeout(() => {
-        challengeBox.innerText = challengeText;
-        challengeBox.style.transform = "scale(1)";
-      }, 200);
+    function mostrarReto() {
+      const sonido = document.getElementById("sonido");
+      sonido.currentTime = 0;
+      sonido.play();
+      const retoAleatorio = retos[Math.floor(Math.random() * retos.length)];
+      document.getElementById("reto").textContent = retoAleatorio;
     }
   </script>
+
 </body>
 </html>
